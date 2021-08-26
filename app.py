@@ -31,7 +31,30 @@ def antes_requisicao():
 def depois_request(exc):
     g.bd.close()
 
+'''@app.route('/')
+@app.route('/entradas') # uma segunda rota que leva para a mesma página
+def exibir_entradas():
+    sql = "select titulo, texto from entradas "
+
+    return render_template('exibir_entradas.html', mensagem="Olá pessoas", img='https://img.olhardigital.com.br/wp-content/uploads/2021/02/shutterstock_1041249343-2000x450.jpg')
+'''
+
 @app.route('/')
 @app.route('/entradas') # uma segunda rota que leva para a mesma página
 def exibir_entradas():
-    return render_template('exibir_entradas.html')
+    sql = "SELECT titulo, texto FROM entradas ORDER BY id DESC" # script sql para pegar os dados e ordernar
+    cur = g.bd.execute(sql) # executa o sql. Resultado no formato do banco
+    entradas = [] # lista vazia
+    for titulo, texto in cur.fetchall(): # fetchall traz os resultados
+        entradas.append({'título': titulo, 'texto': texto}) # dicionário onde título e texto estarão guardados 
+    return render_template('exibir_entradas.html', entradas=entradas)
+
+
+@app.route('/inserir')
+def inserir_entrada():
+    if not session.get('logado'):
+        abort(401)
+    sql = "INSERT INTO entradas(titulo, texto) VALUES (?,?)
+    g.bd.execute(sql, request.form['campoTitulo'], request.form['campoTexto'])
+    g.bd.commit()
+    return redirect('/entradas')
