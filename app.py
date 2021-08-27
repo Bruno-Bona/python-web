@@ -6,6 +6,7 @@ from flask import redirect # redirecionamento de página
 from flask import abort # aborta requisição e retorna erro
 from flask import render_template # renderiza um template
 from flask import flash
+from flask import url_for
 
 # configuração
 DATABASE = "blog.db"
@@ -40,7 +41,7 @@ def exibir_entradas():
 '''
 
 @app.route('/')
-@app.route('/entradas') # uma segunda rota que leva para a mesma página
+@app.route('/entradas', methods=['POST']) # uma segunda rota que leva para a mesma página
 def exibir_entradas():
     sql = "SELECT titulo, texto FROM entradas ORDER BY id DESC" # script sql para pegar os dados e ordernar
     cur = g.bd.execute(sql) # executa o sql. Resultado no formato do banco
@@ -49,12 +50,28 @@ def exibir_entradas():
         entradas.append({'título': titulo, 'texto': texto}) # dicionário onde título e texto estarão guardados 
     return render_template('exibir_entradas.html', entradas=entradas)
 
-
-@app.route('/inserir')
+@app.route('/inserir', methods=['POST'])
 def inserir_entrada():
     if not session.get('logado'):
         abort(401)
-    sql = "INSERT INTO entradas(titulo, texto) VALUES (?,?)
+    sql = "INSERT INTO entradas(titulo, texto) VALUES (?,?)"
     g.bd.execute(sql, request.form['campoTitulo'], request.form['campoTexto'])
     g.bd.commit()
     return redirect('/entradas')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('logado', None)
+    return redirect(url_for('exibir_entradas'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if request.form['campoUsuario'] != 'admin' or request.form['campoSenha'] != 'admin':
+            erro = 'senha ou usuário inválido'
+        else:
+            session['logado'] = True
+            return redirect(url_for('exibir_entradas'))
+    return render_template('login.html', erro='erro')

@@ -1,0 +1,36 @@
+<!DOCTYPE html5>
+
+<html>
+
+    <head>
+
+        <title>Python Web</title>
+        <link rel='stylesheet' href={{url_for('static', filename='estilo.css')}}
+
+    </head>
+
+    <body>
+
+        <div class='pagina'>
+           
+            <h1>
+                OCEAN Curso Python Web com Flask
+            </h1>
+           
+            <div class='metanav'>
+                {% if not session.logado %}
+                    <a href='{{url_for('login')}}'>login</a>
+                {% else %}
+                    <a href='{{url_for('logout')}}'>logout</a>
+                {% endif %}
+            </div>
+
+            {% block corpo %}
+
+            {% endblock %}
+
+        </div>
+
+    </body>
+
+</html>

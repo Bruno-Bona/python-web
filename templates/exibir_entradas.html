@@ -1,7 +1,32 @@
-<h1 style='color: red';> Aqui estarão as entradas!!</h1>
+{% extends 'layout.html' %}
 
-<!--<h2>{{mensagem}}</h2>-->
+{% block corpo %}
+    
+{% if session.logado %}
+    <form action='{{url_for('exibir_entradas')}}', class='ins-entrada' method='POST'>
+        <dl>
+            <dt>Título:
+                <dd><input type='text' size='30' name='campoTitulo'></dd>
+            </dt>
+            <dt>Texto</dt>
+                <dd><textarea rows='5' cols='48' name='campoTexto'></textarea></dd>
+            </dt>
+            <dt>
+                <dd><input type='submit' value='Publicar'></dd>
+            </dt>
+        </dl>        
+    </form>
 
-<h2>{{entradas}}</h2>
+{% endif %}
 
-<img src="{{img}}">
+<ul class='entradas'>
+    {% for entrada in entradas %}
+    <li>
+        <h2>{{ entrada.titulo }}</h2>
+        {{entrada.texto}}
+    </li>
+    {% else %}
+        <li><em>Nenhuma postagem</em></li>
+    {% endfor %}
+    
+{% endblock %}
